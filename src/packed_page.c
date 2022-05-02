@@ -74,6 +74,10 @@ page_add_record(Page page, void* record, size_t size)
 int
 page_delete_record(Page page, void* record, size_t size)
 {
+    if (page->n_tuples == 0) {
+        return -1;
+    }
+
     int record_id;
     for (record_id = 0; record_id < page->n_tuples; record_id++) {
         if (memcmp(page->data + record_id * size, record, size) == 0) {
