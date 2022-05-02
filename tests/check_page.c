@@ -105,24 +105,23 @@ END_TEST
 
 Suite* page_suite(void)
 {
-    Suite* s;
-    TCase* tc_core;
+    Suite* s = suite_create("Page");
     
-    s = suite_create("Page");
-    
-    tc_core = tcase_create("Core");
-    
+    TCase* tc_core = tcase_create("Core");
     tcase_add_test(tc_core, should_create_valid_page);
     tcase_add_test(tc_core, should_set_page_to_null_after_free);
     tcase_add_test(tc_core, should_not_throw_error_when_freeing_null_page);
     tcase_add_test(tc_core, should_not_create_page_smaller_than_header);
-    tcase_add_test(tc_core, should_be_able_to_add_record);
-    tcase_add_test(tc_core, should_not_be_able_to_add_null_record);
-    tcase_add_test(tc_core, should_not_be_able_to_add_records_larger_than_page);
-    tcase_add_test(tc_core, should_not_be_able_to_add_record_if_no_space);
-    tcase_add_test(tc_core, should_not_be_able_to_add_record_to_null_page);
+    
+    TCase* tc_add = tcase_create("Add");
+    tcase_add_test(tc_add, should_be_able_to_add_record);
+    tcase_add_test(tc_add, should_not_be_able_to_add_null_record);
+    tcase_add_test(tc_add, should_not_be_able_to_add_records_larger_than_page);
+    tcase_add_test(tc_add, should_not_be_able_to_add_record_if_no_space);
+    tcase_add_test(tc_add, should_not_be_able_to_add_record_to_null_page);
     
     suite_add_tcase(s, tc_core);
+    suite_add_tcase(s, tc_add);
     
     return s;
 }
