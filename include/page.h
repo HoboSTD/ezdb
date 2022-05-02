@@ -5,7 +5,15 @@
 
 typedef struct page* Page;
 
+/*
+ * Returns a page of size size (including the header).
+ */
 Page page_create(size_t size);
+
+/*
+ * Frees the memory associated with the page, sets the reference to NULL.
+ */
+void page_free(Page* page);
 
 /*
  * Returns non-zero if the record was added to the page.
@@ -13,6 +21,5 @@ Page page_create(size_t size);
 int
 page_add_record(Page page, void* record, size_t size);
 
-void page_free(Page* page);
 
 #endif
