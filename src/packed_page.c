@@ -10,7 +10,7 @@ struct page
 };
 
 static int
-page_min_size()
+page_header_size()
 {
     return sizeof(struct page);
 }
@@ -18,7 +18,7 @@ page_min_size()
 Page
 page_create(size_t size)
 {
-    if (size < page_min_size()) {
+    if (size < page_header_size()) {
         return NULL;
     }
 
@@ -44,6 +44,12 @@ page_free(Page* page)
     *page = NULL;
 }
 
+static int
+page_has_space(Page page, size_t size)
+{
+    return (page->size - page_header_size() - page->n_tuples * size) > size;
+}
+
 /*
  * For a packed page, size is assumed to be constant.
  */
@@ -54,7 +60,7 @@ page_add_record(Page page, void* record, size_t size)
         return 0;
     }
     
-    if (size > page->size) {
+    if (!page_has_space(page, size)) {
         return 0;
     }
 
