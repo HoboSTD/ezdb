@@ -56,7 +56,7 @@ page_has_space(Page page, size_t size)
 int
 page_add_record(Page page, void* record, size_t size)
 {
-    if (record == NULL) {
+    if (page == NULL || record == NULL) {
         return 0;
     }
     
