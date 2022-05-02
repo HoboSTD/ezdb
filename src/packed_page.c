@@ -4,6 +4,7 @@
 
 struct page
 {
+    size_t  size;
     int     n_tuples;
     char    data[1];
 };
@@ -26,6 +27,7 @@ page_create(size_t size)
         return NULL;
     }
     
+    page->size = size;
     page-> n_tuples = 0;
 
     return page;
@@ -49,6 +51,10 @@ int
 page_add_record(Page page, void* record, size_t size)
 {
     if (record == NULL) {
+        return 0;
+    }
+    
+    if (size > page->size) {
         return 0;
     }
 
