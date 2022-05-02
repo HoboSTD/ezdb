@@ -22,6 +22,14 @@ START_TEST (should_set_page_to_null_after_free)
 }
 END_TEST
 
+START_TEST (should_not_throw_error_when_freeing_null_page)
+{
+    page_free(NULL);
+
+    ck_assert(1);
+}
+END_TEST
+
 START_TEST (should_not_create_page_smaller_than_header)
 {
     Page page = page_create(1);
@@ -40,6 +48,7 @@ Suite* page_suite(void)
     
     tcase_add_test(tc_core, should_create_valid_page);
     tcase_add_test(tc_core, should_set_page_to_null_after_free);
+    tcase_add_test(tc_core, should_not_throw_error_when_freeing_null_page);
     tcase_add_test(tc_core, should_not_create_page_smaller_than_header);
     
     suite_add_tcase(s, tc_core);
