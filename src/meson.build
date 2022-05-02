@@ -1,4 +1,4 @@
-sources = ['packed_page.c']
+sources = ['packed_page.c', 'record.c']
 
 ezdblib = library(
     'ezdb',

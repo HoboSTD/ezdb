@@ -11,11 +11,20 @@ check       = dependency('check')
 
 deps = [check, m, pthread, rt, subunit]
 
-e = executable(
+page = executable(
     'check_page',
     'check_page.c',
     include_directories: incdir,
     dependencies : deps,
     link_with : ezdblib)
 
-test('check page', e, suite: 'page')
+record = executable(
+    'check_record',
+    'check_record.c',
+    include_directories : incdir,
+    dependencies : deps,
+    link_with : ezdblib
+)
+
+test('check-page', page, suite: 'page')
+test('check-record', record, suite: 'record')
