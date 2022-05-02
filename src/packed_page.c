@@ -1,9 +1,10 @@
 #include <stdlib.h>
+#include <string.h>
 #include "page.h"
 
 struct page
 {
-    int     ntuples;
+    int     n_tuples;
     char    data[1];
 };
 
@@ -25,7 +26,7 @@ page_create(size_t size)
         return NULL;
     }
     
-    page->ntuples = 0;
+    page-> n_tuples = 0;
 
     return page;
 }
@@ -39,4 +40,15 @@ page_free(Page* page)
     
     free(*page);
     *page = NULL;
+}
+
+/*
+ * For a packed page, size is assumed to be constant.
+ */
+int
+page_add_record(Page page, void* record, size_t size)
+{
+    memcpy(page->data + (page->n_tuples * size), record, size);
+
+    return ++page->n_tuples;
 }

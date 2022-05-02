@@ -37,6 +37,21 @@ START_TEST (should_not_create_page_smaller_than_header)
 }
 END_TEST
 
+START_TEST (should_be_able_to_add_record)
+{
+    Page page = page_create(1024);
+    
+    size_t size = 128;
+    char* record = malloc(size);
+    
+    ck_assert(page_add_record(page, record, size) != 0);
+    
+    free(record);
+    
+    page_free(&page);
+}
+END_TEST
+
 Suite* page_suite(void)
 {
     Suite* s;
@@ -50,6 +65,7 @@ Suite* page_suite(void)
     tcase_add_test(tc_core, should_set_page_to_null_after_free);
     tcase_add_test(tc_core, should_not_throw_error_when_freeing_null_page);
     tcase_add_test(tc_core, should_not_create_page_smaller_than_header);
+    tcase_add_test(tc_core, should_be_able_to_add_record);
     
     suite_add_tcase(s, tc_core);
     
