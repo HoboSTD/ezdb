@@ -103,6 +103,21 @@ START_TEST (should_not_be_able_to_add_record_to_null_page)
 }
 END_TEST
 
+START_TEST (should_be_able_to_delete_record)
+{
+    Page page = page_create(1024);
+    
+    char* record = strdup("hello,my,name,jeff");
+    size_t size = strlen(record);
+    
+    page_add_record(page, record, size);
+    ck_assert(page_delete_record(page, record, size) != -1);
+    
+    free(record);
+    page_free(&page);
+}
+END_TEST
+
 Suite* page_suite(void)
 {
     Suite* s = suite_create("Page");
@@ -112,6 +127,7 @@ Suite* page_suite(void)
     tcase_add_test(tc_core, should_set_page_to_null_after_free);
     tcase_add_test(tc_core, should_not_throw_error_when_freeing_null_page);
     tcase_add_test(tc_core, should_not_create_page_smaller_than_header);
+    suite_add_tcase(s, tc_core);
     
     TCase* tc_add = tcase_create("Add");
     tcase_add_test(tc_add, should_be_able_to_add_record);
@@ -119,9 +135,11 @@ Suite* page_suite(void)
     tcase_add_test(tc_add, should_not_be_able_to_add_records_larger_than_page);
     tcase_add_test(tc_add, should_not_be_able_to_add_record_if_no_space);
     tcase_add_test(tc_add, should_not_be_able_to_add_record_to_null_page);
-    
-    suite_add_tcase(s, tc_core);
     suite_add_tcase(s, tc_add);
+    
+    TCase* tc_remove = tcase_create("Remove");
+    tcase_add_test(tc_remove, should_be_able_to_delete_record);
+    suite_add_tcase(s, tc_remove);
     
     return s;
 }

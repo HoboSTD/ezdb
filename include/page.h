@@ -23,5 +23,10 @@ void page_free(Page* page);
 int
 page_add_record(Page page, void* record, size_t size);
 
+/*
+ * Returns the index of the record that was deleted from the page.
+ */
+int
+page_delete_record(Page page, void* record, size_t size);
 
 #endif

@@ -2,6 +2,11 @@
 #include <string.h>
 #include "page.h"
 
+/*
+ * For a packed page, size is assumed to be constant.
+ * When a record is deleted, all records "above" it in the page are moved down. 
+ */
+
 struct page
 {
     size_t  size;
@@ -50,9 +55,6 @@ page_has_space(Page page, size_t size)
     return (page->size - page_header_size() - page->n_tuples * size) > size;
 }
 
-/*
- * For a packed page, size is assumed to be constant.
- */
 int
 page_add_record(Page page, void* record, size_t size)
 {
@@ -67,4 +69,21 @@ page_add_record(Page page, void* record, size_t size)
     memcpy(page->data + (page->n_tuples * size), record, size);
 
     return ++page->n_tuples;
+}
+
+int
+page_delete_record(Page page, void* record, size_t size)
+{
+    int record_id;
+    for (record_id = 0; record_id < page->n_tuples; record_id++) {
+        if (memcmp(page->data + record_id * size, record, size) == 0) {
+            break;
+        }
+    }
+    
+    memmove(page->data + record_id * size, page->data + (page->n_tuples - 1) * size, size);
+    memset(page->data + (page->n_tuples - 1), 0, size);
+    page->n_tuples--;
+    
+    return record_id;
 }
