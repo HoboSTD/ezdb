@@ -74,6 +74,10 @@ page_add_record(Page page, void* record, size_t size)
 int
 page_delete_record(Page page, void* record, size_t size)
 {
+    if (page == NULL || record == NULL) {
+        return -1;
+    }
+
     if (page->n_tuples == 0) {
         return -1;
     }
