@@ -48,6 +48,10 @@ page_free(Page* page)
 int
 page_add_record(Page page, void* record, size_t size)
 {
+    if (record == NULL) {
+        return 0;
+    }
+
     memcpy(page->data + (page->n_tuples * size), record, size);
 
     return ++page->n_tuples;

@@ -7,6 +7,9 @@ typedef struct page* Page;
 
 Page page_create(size_t size);
 
+/*
+ * Returns non-zero if the record was added to the page.
+ */
 int
 page_add_record(Page page, void* record, size_t size);
 
