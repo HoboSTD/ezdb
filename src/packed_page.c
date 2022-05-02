@@ -18,7 +18,7 @@ page_header_size()
 Page
 page_create(size_t size)
 {
-    if (size < page_header_size()) {
+    if (size <= page_header_size() || size < MIN_PAGE_SIZE) {
         return NULL;
     }
 

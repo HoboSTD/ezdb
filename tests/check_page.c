@@ -32,7 +32,7 @@ END_TEST
 
 START_TEST (should_not_create_page_smaller_than_header)
 {
-    Page page = page_create(1);
+    Page page = page_create(100);
     ck_assert(page == NULL);
 }
 END_TEST

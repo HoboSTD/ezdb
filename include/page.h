@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 
+#define MIN_PAGE_SIZE (128)
+
 typedef struct page* Page;
 
 /*
