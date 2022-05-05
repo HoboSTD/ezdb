@@ -89,6 +89,10 @@ page_delete_record(Page page, void* record, size_t size)
         }
     }
     
+    if (record_id >= page->n_tuples) {
+        return -1;
+    }
+    
     memmove(page->data + record_id * size, page->data + (page->n_tuples - 1) * size, size);
     memset(page->data + (page->n_tuples - 1), 0, size);
     page->n_tuples--;
