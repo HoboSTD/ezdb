@@ -44,7 +44,7 @@ START_TEST (should_be_able_to_add_record)
     size_t size = 128;
     char* record = malloc(size);
     
-    ck_assert(page_add_record(page, record, size) != 0);
+    ck_assert(page_add_record(page, record, size) == 0);
     
     free(record);
     
@@ -56,7 +56,7 @@ START_TEST (should_not_be_able_to_add_null_record)
 {
     Page page = page_create(1024);
     
-    ck_assert(page_add_record(page, NULL, 128) == 0);
+    ck_assert(page_add_record(page, NULL, 128) == -1);
     
     page_free(&page);
 }
@@ -69,7 +69,7 @@ START_TEST (should_not_be_able_to_add_records_larger_than_page)
     size_t size = 2048;
     char* record = malloc(size);
     
-    ck_assert(page_add_record(page, record, size) == 0);
+    ck_assert(page_add_record(page, record, size) == -1);
     
     free(record);
     
@@ -84,8 +84,8 @@ START_TEST (should_not_be_able_to_add_record_if_no_space)
     size_t size = 512;
     char* record = malloc(size);
 
-    ck_assert(page_add_record(page, record, size) != 0);
     ck_assert(page_add_record(page, record, size) == 0);
+    ck_assert(page_add_record(page, record, size) == -1);
     
     free(record);
     page_free(&page);
@@ -97,9 +97,28 @@ START_TEST (should_not_be_able_to_add_record_to_null_page)
     size_t size = 512;
     char* record = malloc(size);
     
-    ck_assert(page_add_record(NULL, record, size) == 0);
+    ck_assert(page_add_record(NULL, record, size) == -1);
     
     free(record);
+}
+END_TEST
+
+START_TEST (should_be_able_to_add_many_records)
+{
+    Page page = page_create(1024);
+    
+    char* record1 = strdup("hello,my,name,jeff");
+    size_t size1 = strlen(record1);
+    
+    char* record2 = strdup("hello,my,name,john");
+    size_t size2 = strlen(record2);
+    
+    ck_assert(page_add_record(page, record1, size1) == 0);
+    ck_assert(page_add_record(page, record2, size2) == 1);
+    
+    free(record1);
+    free(record2);
+    page_free(&page);
 }
 END_TEST
 
@@ -194,6 +213,7 @@ Suite* page_suite(void)
     tcase_add_test(tc_add, should_not_be_able_to_add_records_larger_than_page);
     tcase_add_test(tc_add, should_not_be_able_to_add_record_if_no_space);
     tcase_add_test(tc_add, should_not_be_able_to_add_record_to_null_page);
+    tcase_add_test(tc_add, should_be_able_to_add_many_records);
     suite_add_tcase(s, tc_add);
     
     TCase* tc_remove = tcase_create("Remove");
@@ -202,6 +222,7 @@ Suite* page_suite(void)
     tcase_add_test(tc_remove, should_not_be_able_to_delete_from_null_page);
     tcase_add_test(tc_remove, should_not_be_able_to_delete_using_null_record);
     tcase_add_test(tc_remove, should_not_be_able_to_delete_non_existant_record);
+    // tcase_add_test(tc_remove, should_be_able_to_delete_many_records);
     suite_add_tcase(s, tc_remove);
     
     return s;

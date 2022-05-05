@@ -33,7 +33,7 @@ page_create(size_t size)
     }
     
     page->size = size;
-    page-> n_tuples = 0;
+    page->n_tuples = 0;
 
     return page;
 }
@@ -52,23 +52,23 @@ page_free(Page* page)
 static int
 page_has_space(Page page, size_t size)
 {
-    return (page->size - page_header_size() - page->n_tuples * size) > size;
+    return page_header_size() + page->n_tuples * size + size < page->size;
 }
 
 int
 page_add_record(Page page, void* record, size_t size)
 {
     if (page == NULL || record == NULL) {
-        return 0;
+        return -1;
     }
     
     if (!page_has_space(page, size)) {
-        return 0;
+        return -1;
     }
 
     memcpy(page->data + (page->n_tuples * size), record, size);
 
-    return ++page->n_tuples;
+    return page->n_tuples++;
 }
 
 int

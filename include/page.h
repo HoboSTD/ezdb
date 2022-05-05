@@ -18,7 +18,7 @@ Page page_create(size_t size);
 void page_free(Page* page);
 
 /*
- * Returns non-zero if the record was added to the page.
+ * Returns the index of the record if it was added to the page, -1 if it wasn't.
  */
 int
 page_add_record(Page page, void* record, size_t size);
