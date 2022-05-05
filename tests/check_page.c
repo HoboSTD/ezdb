@@ -196,6 +196,27 @@ START_TEST (should_not_be_able_to_delete_non_existant_record)
 }
 END_TEST
 
+START_TEST (should_be_able_to_delete_many_records)
+{
+    Page page = page_create(1024);
+    
+    char* record1 = strdup("hello,my,name,jeff");
+    size_t size1 = strlen(record1);
+    
+    char* record2 = strdup("hello,my,name,john");
+    size_t size2 = strlen(record2);
+    
+    page_add_record(page, record1, size1);
+    page_add_record(page, record2, size2);
+    ck_assert_int_eq(page_delete_record(page, record1, size1), 0);
+    ck_assert_int_eq(page_delete_record(page, record2, size2), 0);
+    
+    free(record1);
+    free(record2);
+    page_free(&page);
+}
+END_TEST
+
 Suite* page_suite(void)
 {
     Suite* s = suite_create("Page");
@@ -222,7 +243,7 @@ Suite* page_suite(void)
     tcase_add_test(tc_remove, should_not_be_able_to_delete_from_null_page);
     tcase_add_test(tc_remove, should_not_be_able_to_delete_using_null_record);
     tcase_add_test(tc_remove, should_not_be_able_to_delete_non_existant_record);
-    // tcase_add_test(tc_remove, should_be_able_to_delete_many_records);
+    tcase_add_test(tc_remove, should_be_able_to_delete_many_records);
     suite_add_tcase(s, tc_remove);
     
     return s;
