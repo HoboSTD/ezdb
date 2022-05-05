@@ -55,6 +55,12 @@ page_has_space(Page page, size_t size)
     return page_header_size() + page->n_tuples * size + size < page->size;
 }
 
+static void*
+get_offset(Page page, int record_id, size_t size)
+{
+    return page->data + record_id * size;
+}
+
 int
 page_add_record(Page page, void* record, size_t size)
 {
@@ -66,7 +72,7 @@ page_add_record(Page page, void* record, size_t size)
         return PAGE_HAS_NO_SPACE;
     }
 
-    memcpy(page->data + (page->n_tuples * size), record, size);
+    memcpy(get_offset(page, page->n_tuples, size), record, size);
 
     return page->n_tuples++;
 }
@@ -84,7 +90,7 @@ page_delete_record(Page page, void* record, size_t size)
 
     int record_id;
     for (record_id = 0; record_id < page->n_tuples; record_id++) {
-        if (memcmp(page->data + record_id * size, record, size) == 0) {
+        if (memcmp(get_offset(page, record_id, size), record, size) == 0) {
             break;
         }
     }
@@ -93,8 +99,8 @@ page_delete_record(Page page, void* record, size_t size)
         return PAGE_RECORD_NOT_FOUND;
     }
     
-    memmove(page->data + record_id * size, page->data + (page->n_tuples - 1) * size, size);
-    memset(page->data + (page->n_tuples - 1) * size, 0, size);
+    memmove(get_offset(page, record_id, size), get_offset(page, page->n_tuples - 1, size), size);
+    memset(get_offset(page, page->n_tuples - 1, size), 0, size);
     page->n_tuples--;
     
     return record_id;
