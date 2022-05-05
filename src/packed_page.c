@@ -59,11 +59,11 @@ int
 page_add_record(Page page, void* record, size_t size)
 {
     if (page == NULL || record == NULL) {
-        return -1;
+        return PAGE_ARG_INVALID;
     }
     
     if (!page_has_space(page, size)) {
-        return -1;
+        return PAGE_HAS_NO_SPACE;
     }
 
     memcpy(page->data + (page->n_tuples * size), record, size);
@@ -75,11 +75,11 @@ int
 page_delete_record(Page page, void* record, size_t size)
 {
     if (page == NULL || record == NULL) {
-        return -1;
+        return PAGE_ARG_INVALID;
     }
 
     if (page->n_tuples == 0) {
-        return -1;
+        return PAGE_HAS_NO_RECORDS;
     }
 
     int record_id;
@@ -90,7 +90,7 @@ page_delete_record(Page page, void* record, size_t size)
     }
     
     if (record_id >= page->n_tuples) {
-        return -1;
+        return PAGE_RECORD_NOT_FOUND;
     }
     
     memmove(page->data + record_id * size, page->data + (page->n_tuples - 1) * size, size);

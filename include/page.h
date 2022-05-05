@@ -5,6 +5,11 @@
 
 #define MIN_PAGE_SIZE (128)
 
+#define PAGE_ARG_INVALID -1
+#define PAGE_HAS_NO_SPACE -2
+#define PAGE_HAS_NO_RECORDS -3
+#define PAGE_RECORD_NOT_FOUND -4
+
 typedef struct page* Page;
 
 /*

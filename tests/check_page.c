@@ -56,7 +56,7 @@ START_TEST (should_not_be_able_to_add_null_record)
 {
     Page page = page_create(1024);
     
-    ck_assert(page_add_record(page, NULL, 128) == -1);
+    ck_assert(page_add_record(page, NULL, 128) == PAGE_ARG_INVALID);
     
     page_free(&page);
 }
@@ -69,7 +69,7 @@ START_TEST (should_not_be_able_to_add_records_larger_than_page)
     size_t size = 2048;
     char* record = malloc(size);
     
-    ck_assert(page_add_record(page, record, size) == -1);
+    ck_assert(page_add_record(page, record, size) == PAGE_HAS_NO_SPACE);
     
     free(record);
     
@@ -85,7 +85,7 @@ START_TEST (should_not_be_able_to_add_record_if_no_space)
     char* record = malloc(size);
 
     ck_assert(page_add_record(page, record, size) == 0);
-    ck_assert(page_add_record(page, record, size) == -1);
+    ck_assert(page_add_record(page, record, size) == PAGE_HAS_NO_SPACE);
     
     free(record);
     page_free(&page);
@@ -97,7 +97,7 @@ START_TEST (should_not_be_able_to_add_record_to_null_page)
     size_t size = 512;
     char* record = malloc(size);
     
-    ck_assert(page_add_record(NULL, record, size) == -1);
+    ck_assert(page_add_record(NULL, record, size) == PAGE_ARG_INVALID);
     
     free(record);
 }
@@ -144,7 +144,7 @@ START_TEST (should_not_be_able_to_delete_record_from_empty_page)
     char* record = strdup("hello,my,name,jeff");
     size_t size = strlen(record);
     
-    ck_assert(page_delete_record(page, record, size) == -1);
+    ck_assert(page_delete_record(page, record, size) == PAGE_HAS_NO_RECORDS);
     
     free(record);
     page_free(&page);
@@ -156,7 +156,7 @@ START_TEST (should_not_be_able_to_delete_from_null_page)
     char* record = strdup("hello,my,name,jeff");
     size_t size = strlen(record);
     
-    ck_assert(page_delete_record(NULL, record, size) == -1);
+    ck_assert(page_delete_record(NULL, record, size) == PAGE_ARG_INVALID);
     
     free(record);
 }
@@ -170,7 +170,7 @@ START_TEST (should_not_be_able_to_delete_using_null_record)
     size_t size = strlen(record);
     
     page_add_record(page, record, size);
-    ck_assert(page_delete_record(page, NULL, size) == -1);
+    ck_assert(page_delete_record(page, NULL, size) == PAGE_ARG_INVALID);
     
     free(record);
     page_free(&page);
@@ -188,7 +188,7 @@ START_TEST (should_not_be_able_to_delete_non_existant_record)
     size_t size2 = strlen(record2);
     
     page_add_record(page, record1, size1);
-    ck_assert(page_delete_record(page, record2, size2) == -1);
+    ck_assert(page_delete_record(page, record2, size2) == PAGE_RECORD_NOT_FOUND);
     
     free(record1);
     free(record2);
