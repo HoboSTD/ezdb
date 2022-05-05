@@ -165,7 +165,7 @@ START_TEST (should_not_be_able_to_delete_non_existant_record)
     char* record1 = strdup("hello,my,name,jeff");
     size_t size1 = strlen(record1);
     
-    char* record2 = strdup("hello,my,name,isnt,jeff");
+    char* record2 = strdup("hello,my,name,john");
     size_t size2 = strlen(record2);
     
     page_add_record(page, record1, size1);
