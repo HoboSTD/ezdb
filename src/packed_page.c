@@ -79,11 +79,7 @@ page_add_record(Page page, void* record, size_t size)
 
 static int
 page_find_record(Page page, void* record, size_t size)
-{
-    if (page->n_tuples == 0) {
-        return PAGE_RECORD_NOT_FOUND;
-    }
-    
+{    
     for (int record_id = 0; record_id < page->n_tuples; record_id++) {
         if (memcmp(get_offset(page, record_id, size), record, size) == 0) {
             return record_id;
