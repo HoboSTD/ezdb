@@ -267,7 +267,23 @@ START_TEST (should_not_be_able_to_update_null_record)
 }
 END_TEST
 
-// cannot update record that doesn't exist
+START_TEST (should_not_be_able_to_update_record_that_doesnt_exist)
+{
+    Page page = page_create(1024);
+    
+    char* record = strdup("hello,my,name,jeff");
+    size_t size = strlen(record);
+    
+    char* unknown = strdup("hello,my,name,john");
+    
+    page_add_record(page, record, size);
+    ck_assert(page_update_record(page, unknown, record, size) == PAGE_RECORD_NOT_FOUND);
+    
+    free(record);
+    page_free(&page);
+}
+END_TEST
+
 // does not update many records (needs page_read_record(page, record_id)?)
 
 Suite* page_suite(void)
@@ -303,6 +319,7 @@ Suite* page_suite(void)
     tcase_add_test(tc_update, should_be_able_to_update_record);
     tcase_add_test(tc_update, should_not_be_able_to_update_null_page);
     tcase_add_test(tc_update, should_not_be_able_to_update_null_record);
+    tcase_add_test(tc_update, should_not_be_able_to_update_record_that_doesnt_exist);
     suite_add_tcase(s, tc_update);
     
     return s;
