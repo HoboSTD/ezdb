@@ -135,11 +135,18 @@ page_update_record(Page page, void* old, void* new, size_t size)
 }
 
 void*
-page_read_record(Page page, int record_id)
+page_read_record(Page page, int record_id, size_t size)
 {
     if (!(0 <= record_id && record_id < page->n_tuples)) {
         return NULL;
     }
+    
+    void* record = malloc(size);
+    if (record == NULL) {
+        return NULL;
+    }
+    
+    memcpy(record, get_offset(page, record_id, size), size);
 
-    return NULL;
+    return record;
 }

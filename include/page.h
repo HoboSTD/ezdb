@@ -48,9 +48,9 @@ page_update_record(Page page, void* old, void* new, size_t size);
 
 /*
  * Returns a pointer to the record.
- * Returns NULL if the record_id is invalid.
+ * Returns NULL if the record_id is invalid or the pointer could not be created.
  */
 void*
-page_read_record(Page page, int record_id);
+page_read_record(Page page, int record_id, size_t size);
 
 #endif

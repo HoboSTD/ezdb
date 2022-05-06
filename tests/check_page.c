@@ -292,10 +292,28 @@ START_TEST (should_not_be_able_to_read_record_that_doesnt_exist)
     size_t size = strlen(record);
     
     page_add_record(page, record, size);
-    ck_assert(page_read_record(page, -1) == NULL);
-    ck_assert(page_read_record(page, 1) == NULL);
+    ck_assert(page_read_record(page, -1, 128) == NULL);
+    ck_assert(page_read_record(page, 1, 128) == NULL);
     
     free(record);
+    
+    page_free(&page);
+}
+END_TEST
+
+START_TEST (should_be_able_to_read_record_that_exists)
+{
+    Page page = page_create(1024);
+    
+    char* record = strdup("hello,my,name,jeff");
+    size_t size = strlen(record);
+    
+    int record_id = page_add_record(page, record, size);
+    
+    char* read = page_read_record(page, record_id, 128);
+    ck_assert(read != NULL);
+    
+    ck_assert(memcmp(record, read, size) == 0);
     
     page_free(&page);
 }
@@ -341,6 +359,7 @@ Suite* page_suite(void)
     
     TCase* tc_read = tcase_create("Read");
     tcase_add_test(tc_read, should_not_be_able_to_read_record_that_doesnt_exist);
+    tcase_add_test(tc_read, should_be_able_to_read_record_that_exists);
     suite_add_tcase(s, tc_read);
     
     return s;
