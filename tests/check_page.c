@@ -287,6 +287,29 @@ START_TEST (should_not_be_able_to_update_record_that_doesnt_exist)
 }
 END_TEST
 
+START_TEST (should_only_update_one_record)
+{
+    Page page = page_create(1024);
+    
+    char* record = strdup("hello,my,name,jeff");
+    size_t size = strlen(record);
+    
+    char* new = strdup("hello,my,name,john");
+    
+    page_add_record(page, record, size);
+    int record_id = page_add_record(page, record, size);
+    ck_assert(page_update_record(page, record, new, size) == 0);
+    
+    char* read = page_read_record(page, record_id, size);
+    ck_assert(memcmp(record, read, size) == 0);
+    
+    free(read);
+    free(new);
+    free(record);
+    page_free(&page);
+}
+END_TEST
+
 START_TEST (should_not_be_able_to_read_record_that_doesnt_exist)
 {
     Page page = page_create(1024);
@@ -324,8 +347,6 @@ START_TEST (should_be_able_to_read_record_that_exists)
 }
 END_TEST
 
-// does not update many records (needs page_read_record(page, record_id)?)
-
 Suite* page_suite(void)
 {
     Suite* s = suite_create("Page");
@@ -360,6 +381,7 @@ Suite* page_suite(void)
     tcase_add_test(tc_update, should_not_be_able_to_update_null_page);
     tcase_add_test(tc_update, should_not_be_able_to_update_null_record);
     tcase_add_test(tc_update, should_not_be_able_to_update_record_that_doesnt_exist);
+    tcase_add_test(tc_update, should_only_update_one_record);
     suite_add_tcase(s, tc_update);
     
     TCase* tc_read = tcase_create("Read");
