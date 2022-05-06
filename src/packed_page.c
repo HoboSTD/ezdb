@@ -133,3 +133,13 @@ page_update_record(Page page, void* old, void* new, size_t size)
 
     return 0;
 }
+
+void*
+page_read_record(Page page, int record_id)
+{
+    if (!(0 <= record_id && record_id < page->n_tuples)) {
+        return NULL;
+    }
+
+    return NULL;
+}

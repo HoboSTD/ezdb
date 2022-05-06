@@ -46,4 +46,11 @@ page_delete_record(Page page, void* record, size_t size);
 int
 page_update_record(Page page, void* old, void* new, size_t size);
 
+/*
+ * Returns a pointer to the record.
+ * Returns NULL if the record_id is invalid.
+ */
+void*
+page_read_record(Page page, int record_id);
+
 #endif

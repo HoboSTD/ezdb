@@ -284,6 +284,23 @@ START_TEST (should_not_be_able_to_update_record_that_doesnt_exist)
 }
 END_TEST
 
+START_TEST (should_not_be_able_to_read_record_that_doesnt_exist)
+{
+    Page page = page_create(1024);
+    
+    char* record = strdup("hello,my,name,jeff");
+    size_t size = strlen(record);
+    
+    page_add_record(page, record, size);
+    ck_assert(page_read_record(page, -1) == NULL);
+    ck_assert(page_read_record(page, 1) == NULL);
+    
+    free(record);
+    
+    page_free(&page);
+}
+END_TEST
+
 // does not update many records (needs page_read_record(page, record_id)?)
 
 Suite* page_suite(void)
@@ -321,6 +338,10 @@ Suite* page_suite(void)
     tcase_add_test(tc_update, should_not_be_able_to_update_null_record);
     tcase_add_test(tc_update, should_not_be_able_to_update_record_that_doesnt_exist);
     suite_add_tcase(s, tc_update);
+    
+    TCase* tc_read = tcase_create("Read");
+    tcase_add_test(tc_read, should_not_be_able_to_read_record_that_doesnt_exist);
+    suite_add_tcase(s, tc_read);
     
     return s;
 }
