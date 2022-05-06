@@ -105,3 +105,26 @@ page_delete_record(Page page, void* record, size_t size)
     
     return record_id;
 }
+
+int
+page_update_record(Page page, void* old, void* new, size_t size)
+{
+    if (page->n_tuples == 0) {
+        return PAGE_HAS_NO_RECORDS;
+    }
+
+    int record_id;
+    for (record_id = 0; record_id < page->n_tuples; record_id++) {
+        if (memcmp(get_offset(page, record_id, size), old, size) == 0) {
+            break;
+        }
+    }
+    
+    if (record_id >= page->n_tuples) {
+        return PAGE_RECORD_NOT_FOUND;
+    }
+    
+    memcpy(get_offset(page, record_id, size), new, size);
+
+    return 0;
+}

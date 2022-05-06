@@ -217,6 +217,31 @@ START_TEST (should_be_able_to_delete_many_records)
 }
 END_TEST
 
+START_TEST (should_be_able_to_update_record)
+{
+    Page page = page_create(1024);
+    
+    char* old = strdup("hello,my,name,jeff");
+    size_t size1 = strlen(old);
+    
+    char* new = strdup("hello,my,name,john");
+    size_t size2 = strlen(new);
+    
+    page_add_record(page, old, size1);
+    ck_assert(page_update_record(page, old, new, size2) == 0);
+    // assert new record is in the page (page_read_record(page, record_id))
+    
+    free(old);
+    free(new);
+    page_free(&page);
+}
+END_TEST
+
+// cannot update null page
+// cannot update null record (new/old)
+// cannot update record that doesn't exist
+// does not update many records (needs page_read_record(page, record_id)?)
+
 Suite* page_suite(void)
 {
     Suite* s = suite_create("Page");
@@ -245,6 +270,10 @@ Suite* page_suite(void)
     tcase_add_test(tc_remove, should_not_be_able_to_delete_non_existant_record);
     tcase_add_test(tc_remove, should_be_able_to_delete_many_records);
     suite_add_tcase(s, tc_remove);
+    
+    TCase* tc_update = tcase_create("Update");
+    tcase_add_test(tc_update, should_be_able_to_update_record);
+    suite_add_tcase(s, tc_update);
     
     return s;
 }

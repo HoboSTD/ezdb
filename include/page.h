@@ -9,6 +9,7 @@
 #define PAGE_HAS_NO_SPACE -2
 #define PAGE_HAS_NO_RECORDS -3
 #define PAGE_RECORD_NOT_FOUND -4
+#define PAGE_NO_UPDATE (-5)
 
 typedef struct page* Page;
 
@@ -33,5 +34,11 @@ page_add_record(Page page, void* record, size_t size);
  */
 int
 page_delete_record(Page page, void* record, size_t size);
+
+/*
+ * Returns zero on successful update, PAGE_NO_UPDATE if it didn't update.
+ */
+int
+page_update_record(Page page, void* old, void* new, size_t size);
 
 #endif
