@@ -109,6 +109,10 @@ page_delete_record(Page page, void* record, size_t size)
 int
 page_update_record(Page page, void* old, void* new, size_t size)
 {
+    if (page == NULL || old == NULL || new == NULL) {
+        return PAGE_ARG_INVALID;
+    }
+
     if (page->n_tuples == 0) {
         return PAGE_HAS_NO_RECORDS;
     }

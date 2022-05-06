@@ -237,8 +237,36 @@ START_TEST (should_be_able_to_update_record)
 }
 END_TEST
 
-// cannot update null page
-// cannot update null record (new/old)
+START_TEST (should_not_be_able_to_update_null_page)
+{
+    char* old = strdup("hello,my,name,jeff");
+    size_t size1 = strlen(old);
+    
+    char* new = strdup("hello,my,name,john");
+
+    ck_assert(page_update_record(NULL, old, new, size1) == PAGE_ARG_INVALID);
+    
+    free(old);
+    free(new);
+}
+END_TEST
+
+START_TEST (should_not_be_able_to_update_null_record)
+{
+    Page page = page_create(1024);
+    
+    char* record = strdup("hello,my,name,jeff");
+    size_t size = strlen(record);
+    
+    page_add_record(page, record, size);
+    ck_assert(page_update_record(page, NULL, record, size) == PAGE_ARG_INVALID);
+    ck_assert(page_update_record(page, record, NULL, size) == PAGE_ARG_INVALID);
+    
+    free(record);
+    page_free(&page);
+}
+END_TEST
+
 // cannot update record that doesn't exist
 // does not update many records (needs page_read_record(page, record_id)?)
 
@@ -273,6 +301,8 @@ Suite* page_suite(void)
     
     TCase* tc_update = tcase_create("Update");
     tcase_add_test(tc_update, should_be_able_to_update_record);
+    tcase_add_test(tc_update, should_not_be_able_to_update_null_page);
+    tcase_add_test(tc_update, should_not_be_able_to_update_null_record);
     suite_add_tcase(s, tc_update);
     
     return s;
