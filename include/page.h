@@ -7,13 +7,13 @@
 
 #define PAGE_ARG_INVALID -1
 #define PAGE_HAS_NO_SPACE -2
-#define PAGE_RECORD_NOT_FOUND -4
-#define PAGE_NO_UPDATE (-5)
+#define PAGE_RECORD_NOT_FOUND -3
 
 typedef struct page* Page;
 
 /*
- * Returns a page of size size (including the header).
+ * Returns a page of size, size (including the header).
+ * Returns NULL if the page could not be created.
  */
 Page page_create(size_t size);
 
@@ -23,19 +23,25 @@ Page page_create(size_t size);
 void page_free(Page* page);
 
 /*
- * Returns the index of the record if it was added to the page, -1 if it wasn't.
+ * Returns the index of the record if it was added to the page.
+ * Returns PAGE_ARG_INVALID if the given arguments are invalid.
+ * Returns PAGE_HAS_NO_SPACE if there was not enough space for the record.
  */
 int
 page_add_record(Page page, void* record, size_t size);
 
 /*
  * Returns the index of the record that was deleted from the page.
+ * Returns PAGE_ARG_INVALID if the given arguments are invalid.
+ * Returns PAGE_RECORD_NOT_FOUND if no "record" existed on the page.
  */
 int
 page_delete_record(Page page, void* record, size_t size);
 
 /*
- * Returns zero on successful update, PAGE_NO_UPDATE if it didn't update.
+ * Returns zero on successful update.
+ * Returns PAGE_ARG_INVALID if the given arguments are invalid.
+ * Returns PAGE_RECORD_NOT_FOUND if no "old" record existed on the page.
  */
 int
 page_update_record(Page page, void* old, void* new, size_t size);
