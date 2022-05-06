@@ -110,6 +110,11 @@ page_delete_record(Page page, void* record, size_t size)
         return PAGE_RECORD_NOT_FOUND;
     }
     
+    /*
+     * Instead of moving all the records above down one, just swap the last record with the deleted
+     * record.
+     * The last record is then zero'd out to delete the record.
+     */
     memmove(get_offset(page, record_id, size), get_offset(page, page->n_tuples - 1, size), size);
     memset(get_offset(page, page->n_tuples - 1, size), 0, size);
     page->n_tuples--;
