@@ -1,5 +1,7 @@
 # ezdb
 
+Goal: make a CRUD dbms that uses linear hashing.
+
 ## Dependencies
 
  - [Check](https://libcheck.github.io/check/index.html)
