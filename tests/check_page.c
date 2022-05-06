@@ -144,7 +144,7 @@ START_TEST (should_not_be_able_to_delete_record_from_empty_page)
     char* record = strdup("hello,my,name,jeff");
     size_t size = strlen(record);
     
-    ck_assert(page_delete_record(page, record, size) == PAGE_HAS_NO_RECORDS);
+    ck_assert(page_delete_record(page, record, size) == PAGE_RECORD_NOT_FOUND);
     
     free(record);
     page_free(&page);

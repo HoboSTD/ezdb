@@ -77,17 +77,13 @@ page_add_record(Page page, void* record, size_t size)
     return page->n_tuples++;
 }
 
-int
-page_delete_record(Page page, void* record, size_t size)
+static int
+page_find_record(Page page, void* record, size_t size)
 {
-    if (page == NULL || record == NULL) {
-        return PAGE_ARG_INVALID;
-    }
-
     if (page->n_tuples == 0) {
-        return PAGE_HAS_NO_RECORDS;
+        return PAGE_RECORD_NOT_FOUND;
     }
-
+    
     int record_id;
     for (record_id = 0; record_id < page->n_tuples; record_id++) {
         if (memcmp(get_offset(page, record_id, size), record, size) == 0) {
@@ -96,6 +92,21 @@ page_delete_record(Page page, void* record, size_t size)
     }
     
     if (record_id >= page->n_tuples) {
+        return PAGE_RECORD_NOT_FOUND;
+    }
+    
+    return record_id;
+}
+
+int
+page_delete_record(Page page, void* record, size_t size)
+{
+    if (page == NULL || record == NULL) {
+        return PAGE_ARG_INVALID;
+    }
+
+    int record_id = page_find_record(page, record, size);
+    if (record_id == PAGE_RECORD_NOT_FOUND) {
         return PAGE_RECORD_NOT_FOUND;
     }
     
@@ -113,18 +124,8 @@ page_update_record(Page page, void* old, void* new, size_t size)
         return PAGE_ARG_INVALID;
     }
 
-    if (page->n_tuples == 0) {
-        return PAGE_HAS_NO_RECORDS;
-    }
-
-    int record_id;
-    for (record_id = 0; record_id < page->n_tuples; record_id++) {
-        if (memcmp(get_offset(page, record_id, size), old, size) == 0) {
-            break;
-        }
-    }
-    
-    if (record_id >= page->n_tuples) {
+    int record_id = page_find_record(page, old, size);
+    if (record_id == PAGE_RECORD_NOT_FOUND) {
         return PAGE_RECORD_NOT_FOUND;
     }
     
