@@ -84,8 +84,7 @@ page_find_record(Page page, void* record, size_t size)
         return PAGE_RECORD_NOT_FOUND;
     }
     
-    int record_id;
-    for (record_id = 0; record_id < page->n_tuples; record_id++) {
+    for (int record_id = 0; record_id < page->n_tuples; record_id++) {
         if (memcmp(get_offset(page, record_id, size), record, size) == 0) {
             return record_id;
         }
