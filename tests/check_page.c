@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <check.h>
 #include "page.h"
 
@@ -227,10 +228,12 @@ START_TEST (should_be_able_to_update_record)
     char* new = strdup("hello,my,name,john");
     size_t size2 = strlen(new);
     
-    page_add_record(page, old, size1);
+    int record_id = page_add_record(page, old, size1);
     ck_assert(page_update_record(page, old, new, size2) == 0);
-    // assert new record is in the page (page_read_record(page, record_id))
+    char* record = page_read_record(page, record_id, size2);
+    ck_assert(memcmp(new, record, size2) == 0);
     
+    free(record);
     free(old);
     free(new);
     page_free(&page);
@@ -315,6 +318,8 @@ START_TEST (should_be_able_to_read_record_that_exists)
     
     ck_assert(memcmp(record, read, size) == 0);
     
+    free(read);
+    free(record);
     page_free(&page);
 }
 END_TEST
