@@ -31,10 +31,17 @@ START_TEST (should_not_throw_error_when_freeing_null_page)
 }
 END_TEST
 
-// should_not_create_page_that_cant_hold_records
 START_TEST (should_not_create_page_smaller_than_header)
 {
-    Page page = page_create(100, 128);
+    Page page = page_create(50, 4);
+    ck_assert(page == NULL);
+}
+END_TEST
+
+START_TEST (should_not_be_able_to_create_pages_that_cant_hold_records)
+{
+    Page page = page_create(1024, 2048);
+    
     ck_assert(page == NULL);
 }
 END_TEST
@@ -58,21 +65,6 @@ START_TEST (should_not_be_able_to_add_null_record)
     Page page = page_create(1024, 128);
     
     ck_assert(page_add_record(page, NULL) == PAGE_ARG_INVALID);
-    
-    page_free(&page);
-}
-END_TEST
-
-// should_not_create_page_that_cant_hold_records
-START_TEST (should_not_be_able_to_add_records_larger_than_page)
-{
-    Page page = page_create(1024, 2048);
-    
-    char* record = malloc(2048);
-    
-    ck_assert(page_add_record(page, record) == PAGE_HAS_NO_SPACE);
-    
-    free(record);
     
     page_free(&page);
 }
@@ -338,12 +330,12 @@ Suite* page_suite(void)
     tcase_add_test(tc_core, should_set_page_to_null_after_free);
     tcase_add_test(tc_core, should_not_throw_error_when_freeing_null_page);
     tcase_add_test(tc_core, should_not_create_page_smaller_than_header);
+    tcase_add_test(tc_core, should_not_be_able_to_create_pages_that_cant_hold_records);
     suite_add_tcase(s, tc_core);
     
     TCase* tc_add = tcase_create("Add");
     tcase_add_test(tc_add, should_be_able_to_add_record);
     tcase_add_test(tc_add, should_not_be_able_to_add_null_record);
-    tcase_add_test(tc_add, should_not_be_able_to_add_records_larger_than_page);
     tcase_add_test(tc_add, should_not_be_able_to_add_record_if_no_space);
     tcase_add_test(tc_add, should_not_be_able_to_add_record_to_null_page);
     tcase_add_test(tc_add, should_be_able_to_add_many_records);

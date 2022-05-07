@@ -35,6 +35,11 @@ page_create(size_t size, size_t record_size)
     page->size = size;
     page->record_size = record_size;
     page->n_tuples = 0;
+    
+    if (!has_space(page)) {
+        page_free(&page);
+        return NULL;
+    }
 
     return page;
 }
