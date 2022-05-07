@@ -10,17 +10,18 @@
 struct page
 {
     size_t  size;
+    size_t  record_size;
     int     n_tuples;
     char    data[1];
 };
 
 static int header_size();
-static int has_space(Page page, size_t size);
-static void* get_offset(Page page, int record_id, size_t size);
-static int find_record(Page page, void* record, size_t size);
+static int has_space(Page page);
+static void* get_offset(Page page, int record_id);
+static int find_record(Page page, void* record);
 
 Page
-page_create(size_t size)
+page_create(size_t size, size_t record_size)
 {
     if (size <= header_size() || size < MIN_PAGE_SIZE) {
         return NULL;
@@ -32,6 +33,7 @@ page_create(size_t size)
     }
     
     page->size = size;
+    page->record_size = record_size;
     page->n_tuples = 0;
 
     return page;
@@ -49,29 +51,29 @@ page_free(Page* page)
 }
 
 int
-page_add_record(Page page, void* record, size_t size)
+page_add_record(Page page, void* record)
 {
     if (page == NULL || record == NULL) {
         return PAGE_ARG_INVALID;
     }
     
-    if (!has_space(page, size)) {
+    if (!has_space(page)) {
         return PAGE_HAS_NO_SPACE;
     }
 
-    memcpy(get_offset(page, page->n_tuples, size), record, size);
+    memcpy(get_offset(page, page->n_tuples), record, page->record_size);
 
     return page->n_tuples++;
 }
 
 int
-page_delete_record(Page page, void* record, size_t size)
+page_delete_record(Page page, void* record)
 {
     if (page == NULL || record == NULL) {
         return PAGE_ARG_INVALID;
     }
 
-    int record_id = find_record(page, record, size);
+    int record_id = find_record(page, record);
     if (record_id == PAGE_RECORD_NOT_FOUND) {
         return PAGE_RECORD_NOT_FOUND;
     }
@@ -81,43 +83,43 @@ page_delete_record(Page page, void* record, size_t size)
      * record.
      * The last record is then zero'd out to delete the record.
      */
-    memmove(get_offset(page, record_id, size), get_offset(page, page->n_tuples - 1, size), size);
-    memset(get_offset(page, page->n_tuples - 1, size), 0, size);
+    memmove(get_offset(page, record_id), get_offset(page, page->n_tuples - 1), page->record_size);
+    memset(get_offset(page, page->n_tuples - 1), 0, page->record_size);
     page->n_tuples--;
     
     return record_id;
 }
 
 int
-page_update_record(Page page, void* old, void* new, size_t size)
+page_update_record(Page page, void* old, void* new)
 {
     if (page == NULL || old == NULL || new == NULL) {
         return PAGE_ARG_INVALID;
     }
 
-    int record_id = find_record(page, old, size);
+    int record_id = find_record(page, old);
     if (record_id == PAGE_RECORD_NOT_FOUND) {
         return PAGE_RECORD_NOT_FOUND;
     }
     
-    memcpy(get_offset(page, record_id, size), new, size);
+    memcpy(get_offset(page, record_id), new, page->record_size);
 
     return 0;
 }
 
 void*
-page_read_record(Page page, int record_id, size_t size)
+page_read_record(Page page, int record_id)
 {
     if (page == NULL || !(0 <= record_id && record_id < page->n_tuples)) {
         return NULL;
     }
     
-    void* record = malloc(size);
+    void* record = malloc(page->record_size);
     if (record == NULL) {
         return NULL;
     }
     
-    memcpy(record, get_offset(page, record_id, size), size);
+    memcpy(record, get_offset(page, record_id), page->record_size);
 
     return record;
 }
@@ -134,22 +136,22 @@ header_size()
 }
 
 static int
-has_space(Page page, size_t size)
+has_space(Page page)
 {
-    return header_size() + page->n_tuples * size + size < page->size;
+    return header_size() + (page->n_tuples + 1) * page->record_size < page->size;
 }
 
 static void*
-get_offset(Page page, int record_id, size_t size)
+get_offset(Page page, int record_id)
 {
-    return page->data + record_id * size;
+    return page->data + record_id * page->record_size;
 }
 
 static int
-find_record(Page page, void* record, size_t size)
+find_record(Page page, void* record)
 {    
     for (int record_id = 0; record_id < page->n_tuples; record_id++) {
-        if (memcmp(get_offset(page, record_id, size), record, size) == 0) {
+        if (memcmp(get_offset(page, record_id), record, page->record_size) == 0) {
             return record_id;
         }
     }

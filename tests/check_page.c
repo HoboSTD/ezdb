@@ -5,7 +5,7 @@
 
 START_TEST (should_create_valid_page)
 {
-    Page page = page_create(1024);
+    Page page = page_create(1024, 128);
     
     ck_assert(page != NULL);
     
@@ -15,7 +15,7 @@ END_TEST
 
 START_TEST (should_set_page_to_null_after_free)
 {
-    Page page = page_create(1024);
+    Page page = page_create(1024, 128);
     
     page_free(&page);
     
@@ -31,21 +31,21 @@ START_TEST (should_not_throw_error_when_freeing_null_page)
 }
 END_TEST
 
+// should_not_create_page_that_cant_hold_records
 START_TEST (should_not_create_page_smaller_than_header)
 {
-    Page page = page_create(100);
+    Page page = page_create(100, 128);
     ck_assert(page == NULL);
 }
 END_TEST
 
 START_TEST (should_be_able_to_add_record)
 {
-    Page page = page_create(1024);
+    Page page = page_create(1024, 128);
     
-    size_t size = 128;
-    char* record = malloc(size);
+    char* record = malloc(128);
     
-    ck_assert(page_add_record(page, record, size) == 0);
+    ck_assert(page_add_record(page, record) == 0);
     
     free(record);
     
@@ -55,22 +55,22 @@ END_TEST
 
 START_TEST (should_not_be_able_to_add_null_record)
 {
-    Page page = page_create(1024);
+    Page page = page_create(1024, 128);
     
-    ck_assert(page_add_record(page, NULL, 128) == PAGE_ARG_INVALID);
+    ck_assert(page_add_record(page, NULL) == PAGE_ARG_INVALID);
     
     page_free(&page);
 }
 END_TEST
 
+// should_not_create_page_that_cant_hold_records
 START_TEST (should_not_be_able_to_add_records_larger_than_page)
 {
-    Page page = page_create(1024);
+    Page page = page_create(1024, 2048);
     
-    size_t size = 2048;
-    char* record = malloc(size);
+    char* record = malloc(2048);
     
-    ck_assert(page_add_record(page, record, size) == PAGE_HAS_NO_SPACE);
+    ck_assert(page_add_record(page, record) == PAGE_HAS_NO_SPACE);
     
     free(record);
     
@@ -80,13 +80,11 @@ END_TEST
 
 START_TEST (should_not_be_able_to_add_record_if_no_space)
 {
-    Page page = page_create(1024);
-    
-    size_t size = 512;
-    char* record = malloc(size);
+    Page page = page_create(1024, 512);
+    char* record = malloc(512);
 
-    ck_assert(page_add_record(page, record, size) == 0);
-    ck_assert(page_add_record(page, record, size) == PAGE_HAS_NO_SPACE);
+    ck_assert(page_add_record(page, record) == 0);
+    ck_assert(page_add_record(page, record) == PAGE_HAS_NO_SPACE);
     
     free(record);
     page_free(&page);
@@ -98,7 +96,7 @@ START_TEST (should_not_be_able_to_add_record_to_null_page)
     size_t size = 512;
     char* record = malloc(size);
     
-    ck_assert(page_add_record(NULL, record, size) == PAGE_ARG_INVALID);
+    ck_assert(page_add_record(NULL, record) == PAGE_ARG_INVALID);
     
     free(record);
 }
@@ -106,16 +104,13 @@ END_TEST
 
 START_TEST (should_be_able_to_add_many_records)
 {
-    Page page = page_create(1024);
+    Page page = page_create(1024, 18);
     
     char* record1 = strdup("hello,my,name,jeff");
-    size_t size1 = strlen(record1);
-    
     char* record2 = strdup("hello,my,name,john");
-    size_t size2 = strlen(record2);
     
-    ck_assert(page_add_record(page, record1, size1) == 0);
-    ck_assert(page_add_record(page, record2, size2) == 1);
+    ck_assert(page_add_record(page, record1) == 0);
+    ck_assert(page_add_record(page, record2) == 1);
     
     free(record1);
     free(record2);
@@ -125,13 +120,12 @@ END_TEST
 
 START_TEST (should_be_able_to_delete_record)
 {
-    Page page = page_create(1024);
+    Page page = page_create(1024, 18);
     
     char* record = strdup("hello,my,name,jeff");
-    size_t size = strlen(record);
     
-    page_add_record(page, record, size);
-    ck_assert(page_delete_record(page, record, size) == 0);
+    page_add_record(page, record);
+    ck_assert(page_delete_record(page, record) == 0);
     
     free(record);
     page_free(&page);
@@ -140,12 +134,11 @@ END_TEST
 
 START_TEST (should_not_be_able_to_delete_record_from_empty_page)
 {
-    Page page = page_create(1024);
+    Page page = page_create(1024, 18);
     
     char* record = strdup("hello,my,name,jeff");
-    size_t size = strlen(record);
     
-    ck_assert(page_delete_record(page, record, size) == PAGE_RECORD_NOT_FOUND);
+    ck_assert(page_delete_record(page, record) == PAGE_RECORD_NOT_FOUND);
     
     free(record);
     page_free(&page);
@@ -155,9 +148,8 @@ END_TEST
 START_TEST (should_not_be_able_to_delete_from_null_page)
 {
     char* record = strdup("hello,my,name,jeff");
-    size_t size = strlen(record);
     
-    ck_assert(page_delete_record(NULL, record, size) == PAGE_ARG_INVALID);
+    ck_assert(page_delete_record(NULL, record) == PAGE_ARG_INVALID);
     
     free(record);
 }
@@ -165,13 +157,12 @@ END_TEST
 
 START_TEST (should_not_be_able_to_delete_using_null_record)
 {
-    Page page = page_create(1024);
+    Page page = page_create(1024, 18);
     
     char* record = strdup("hello,my,name,jeff");
-    size_t size = strlen(record);
     
-    page_add_record(page, record, size);
-    ck_assert(page_delete_record(page, NULL, size) == PAGE_ARG_INVALID);
+    page_add_record(page, record);
+    ck_assert(page_delete_record(page, NULL) == PAGE_ARG_INVALID);
     
     free(record);
     page_free(&page);
@@ -180,16 +171,13 @@ END_TEST
 
 START_TEST (should_not_be_able_to_delete_non_existant_record)
 {
-    Page page = page_create(1024);
+    Page page = page_create(1024, 18);
     
     char* record1 = strdup("hello,my,name,jeff");
-    size_t size1 = strlen(record1);
-    
     char* record2 = strdup("hello,my,name,john");
-    size_t size2 = strlen(record2);
     
-    page_add_record(page, record1, size1);
-    ck_assert(page_delete_record(page, record2, size2) == PAGE_RECORD_NOT_FOUND);
+    page_add_record(page, record1);
+    ck_assert(page_delete_record(page, record2) == PAGE_RECORD_NOT_FOUND);
     
     free(record1);
     free(record2);
@@ -199,18 +187,15 @@ END_TEST
 
 START_TEST (should_be_able_to_delete_many_records)
 {
-    Page page = page_create(1024);
+    Page page = page_create(1024, 18);
     
     char* record1 = strdup("hello,my,name,jeff");
-    size_t size1 = strlen(record1);
-    
     char* record2 = strdup("hello,my,name,john");
-    size_t size2 = strlen(record2);
     
-    page_add_record(page, record1, size1);
-    page_add_record(page, record2, size2);
-    ck_assert_int_eq(page_delete_record(page, record1, size1), 0);
-    ck_assert_int_eq(page_delete_record(page, record2, size2), 0);
+    page_add_record(page, record1);
+    page_add_record(page, record2);
+    ck_assert_int_eq(page_delete_record(page, record1), 0);
+    ck_assert_int_eq(page_delete_record(page, record2), 0);
     
     free(record1);
     free(record2);
@@ -220,17 +205,15 @@ END_TEST
 
 START_TEST (should_be_able_to_update_record)
 {
-    Page page = page_create(1024);
+    Page page = page_create(1024, 18);
     
     char* old = strdup("hello,my,name,jeff");
-    size_t size1 = strlen(old);
-    
     char* new = strdup("hello,my,name,john");
     size_t size2 = strlen(new);
     
-    int record_id = page_add_record(page, old, size1);
-    ck_assert(page_update_record(page, old, new, size2) == 0);
-    char* record = page_read_record(page, record_id, size2);
+    int record_id = page_add_record(page, old);
+    ck_assert(page_update_record(page, old, new) == 0);
+    char* record = page_read_record(page, record_id);
     ck_assert(memcmp(new, record, size2) == 0);
     
     free(record);
@@ -243,11 +226,9 @@ END_TEST
 START_TEST (should_not_be_able_to_update_null_page)
 {
     char* old = strdup("hello,my,name,jeff");
-    size_t size1 = strlen(old);
-    
     char* new = strdup("hello,my,name,john");
 
-    ck_assert(page_update_record(NULL, old, new, size1) == PAGE_ARG_INVALID);
+    ck_assert(page_update_record(NULL, old, new) == PAGE_ARG_INVALID);
     
     free(old);
     free(new);
@@ -256,14 +237,13 @@ END_TEST
 
 START_TEST (should_not_be_able_to_update_null_record)
 {
-    Page page = page_create(1024);
+    Page page = page_create(1024, 18);
     
     char* record = strdup("hello,my,name,jeff");
-    size_t size = strlen(record);
     
-    page_add_record(page, record, size);
-    ck_assert(page_update_record(page, NULL, record, size) == PAGE_ARG_INVALID);
-    ck_assert(page_update_record(page, record, NULL, size) == PAGE_ARG_INVALID);
+    page_add_record(page, record);
+    ck_assert(page_update_record(page, NULL, record) == PAGE_ARG_INVALID);
+    ck_assert(page_update_record(page, record, NULL) == PAGE_ARG_INVALID);
     
     free(record);
     page_free(&page);
@@ -272,15 +252,13 @@ END_TEST
 
 START_TEST (should_not_be_able_to_update_record_that_doesnt_exist)
 {
-    Page page = page_create(1024);
+    Page page = page_create(1024, 18);
     
     char* record = strdup("hello,my,name,jeff");
-    size_t size = strlen(record);
-    
     char* unknown = strdup("hello,my,name,john");
     
-    page_add_record(page, record, size);
-    ck_assert(page_update_record(page, unknown, record, size) == PAGE_RECORD_NOT_FOUND);
+    page_add_record(page, record);
+    ck_assert(page_update_record(page, unknown, record) == PAGE_RECORD_NOT_FOUND);
     
     free(record);
     page_free(&page);
@@ -289,18 +267,17 @@ END_TEST
 
 START_TEST (should_only_update_one_record)
 {
-    Page page = page_create(1024);
+    Page page = page_create(1024, 18);
     
     char* record = strdup("hello,my,name,jeff");
+    char* new = strdup("hello,my,name,john");
     size_t size = strlen(record);
     
-    char* new = strdup("hello,my,name,john");
+    page_add_record(page, record);
+    int record_id = page_add_record(page, record);
+    ck_assert(page_update_record(page, record, new) == 0);
     
-    page_add_record(page, record, size);
-    int record_id = page_add_record(page, record, size);
-    ck_assert(page_update_record(page, record, new, size) == 0);
-    
-    char* read = page_read_record(page, record_id, size);
+    char* read = page_read_record(page, record_id);
     ck_assert(memcmp(record, read, size) == 0);
     
     free(read);
@@ -312,14 +289,13 @@ END_TEST
 
 START_TEST (should_not_be_able_to_read_record_that_doesnt_exist)
 {
-    Page page = page_create(1024);
+    Page page = page_create(1024, 18);
     
     char* record = strdup("hello,my,name,jeff");
-    size_t size = strlen(record);
     
-    page_add_record(page, record, size);
-    ck_assert(page_read_record(page, -1, 128) == NULL);
-    ck_assert(page_read_record(page, 1, 128) == NULL);
+    page_add_record(page, record);
+    ck_assert(page_read_record(page, -1) == NULL);
+    ck_assert(page_read_record(page, 1) == NULL);
     
     free(record);
     
@@ -329,14 +305,14 @@ END_TEST
 
 START_TEST (should_be_able_to_read_record_that_exists)
 {
-    Page page = page_create(1024);
+    Page page = page_create(1024, 18);
     
     char* record = strdup("hello,my,name,jeff");
     size_t size = strlen(record);
     
-    int record_id = page_add_record(page, record, size);
+    int record_id = page_add_record(page, record);
     
-    char* read = page_read_record(page, record_id, 128);
+    char* read = page_read_record(page, record_id);
     ck_assert(read != NULL);
     
     ck_assert(memcmp(record, read, size) == 0);
@@ -349,7 +325,7 @@ END_TEST
 
 START_TEST (should_not_be_able_to_read_from_null_page)
 {
-    ck_assert(page_read_record(NULL, 0, 128) == NULL);
+    ck_assert(page_read_record(NULL, 0) == NULL);
 }
 END_TEST
 
