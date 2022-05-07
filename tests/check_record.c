@@ -66,6 +66,30 @@ START_TEST (should_have_null_records_not_equal)
 }
 END_TEST
 
+START_TEST (should_have_different_records_not_equal)
+{
+    Record rec1 = record_create("john", 4);
+    Record rec2 = record_create("jeff", 4);
+    
+    ck_assert(!are_records_equal(rec1, rec2));
+    
+    record_free(&rec1);
+    record_free(&rec2);
+}
+END_TEST
+
+START_TEST (should_have_same_records_equal)
+{
+    Record rec1 = record_create("john", 4);
+    Record rec2 = record_create("john", 4);
+    
+    ck_assert(are_records_equal(rec1, rec2) != 0);
+    
+    record_free(&rec1);
+    record_free(&rec2);
+}
+END_TEST
+
 Suite* page_suite(void)
 {
     Suite* s = suite_create("Record");
@@ -84,6 +108,8 @@ Suite* page_suite(void)
     
     TCase* tc_equality = tcase_create("Equality");
     tcase_add_test(tc_equality, should_have_null_records_not_equal);
+    tcase_add_test(tc_equality, should_have_different_records_not_equal);
+    tcase_add_test(tc_equality, should_have_same_records_equal);
     suite_add_tcase(s, tc_equality);
     
     return s;

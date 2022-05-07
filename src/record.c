@@ -56,5 +56,5 @@ are_records_equal(Record rec1, Record rec2)
         return 0;
     }
 
-    return 1;
+    return rec1->size == rec2->size && memcmp(rec1->record, rec2->record, rec1->size) == 0;
 }
