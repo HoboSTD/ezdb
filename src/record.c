@@ -43,11 +43,18 @@ record_free(Record* record)
     *record = NULL;
 }
 
-/*
- * Returns non-zero if the record is valid, zero otherwise.
- */
 int
 record_is_valid(Record record)
 {
     return record != NULL && record->record != NULL && record->size != 0;
+}
+
+int
+are_records_equal(Record rec1, Record rec2)
+{
+    if (rec1 == NULL || rec2 == NULL) {
+        return 0;
+    }
+
+    return 1;
 }

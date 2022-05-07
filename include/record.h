@@ -17,4 +17,11 @@ record_free(Record* record);
 int
 record_is_valid(Record record);
 
+/*
+ * Returns non-zero if the records are equal, zero otherwise.
+ * NULL records aren't equal to other NULL records.
+ */
+int
+are_records_equal(Record rec1, Record rec2);
+
 #endif

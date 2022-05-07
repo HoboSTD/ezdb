@@ -54,6 +54,18 @@ START_TEST (should_have_zero_size_record_be_invalid)
 }
 END_TEST
 
+START_TEST (should_have_null_records_not_equal)
+{
+    Record record = record_create("hello", 5);
+    
+    ck_assert(are_records_equal(NULL, NULL) == 0);
+    ck_assert(are_records_equal(record, NULL) == 0);
+    ck_assert(are_records_equal(NULL, record) == 0);
+
+    record_free(&record);
+}
+END_TEST
+
 Suite* page_suite(void)
 {
     Suite* s = suite_create("Record");
@@ -69,6 +81,10 @@ Suite* page_suite(void)
     tcase_add_test(tc_validity, should_have_null_record_pointer_be_invalid);
     tcase_add_test(tc_validity, should_have_zero_size_record_be_invalid);
     suite_add_tcase(s, tc_validity);
+    
+    TCase* tc_equality = tcase_create("Equality");
+    tcase_add_test(tc_equality, should_have_null_records_not_equal);
+    suite_add_tcase(s, tc_equality);
     
     return s;
 }
