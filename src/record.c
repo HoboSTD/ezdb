@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "record.h"
 
 struct record
@@ -10,13 +11,22 @@ struct record
 Record
 record_create(void* record, size_t size)
 {
+    if (record == NULL) {
+        return NULL;
+    }
+
     Record rec = malloc(sizeof(*rec));
     if (rec == NULL) {
         return NULL;
     }
     
     rec->size = size;
-    rec->record = record;
+    rec->record = malloc(rec->size);
+    if (rec->record == NULL) {
+        free(rec);
+        return NULL;
+    }
+    memcpy(rec->record, record, size);
 
     return rec;
 }
@@ -28,6 +38,7 @@ record_free(Record* record)
         return ;
     }
 
+    free((*record)->record);
     free(*record);
     *record = NULL;
 }
