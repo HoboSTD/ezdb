@@ -14,16 +14,15 @@ struct page
     char    data[1];
 };
 
-static int
-page_header_size()
-{
-    return sizeof(struct page);
-}
+static int header_size();
+static int has_space(Page page, size_t size);
+static void* get_offset(Page page, int record_id, size_t size);
+static int find_record(Page page, void* record, size_t size);
 
 Page
 page_create(size_t size)
 {
-    if (size <= page_header_size() || size < MIN_PAGE_SIZE) {
+    if (size <= header_size() || size < MIN_PAGE_SIZE) {
         return NULL;
     }
 
@@ -49,18 +48,6 @@ page_free(Page* page)
     *page = NULL;
 }
 
-static int
-page_has_space(Page page, size_t size)
-{
-    return page_header_size() + page->n_tuples * size + size < page->size;
-}
-
-static void*
-get_offset(Page page, int record_id, size_t size)
-{
-    return page->data + record_id * size;
-}
-
 int
 page_add_record(Page page, void* record, size_t size)
 {
@@ -68,25 +55,13 @@ page_add_record(Page page, void* record, size_t size)
         return PAGE_ARG_INVALID;
     }
     
-    if (!page_has_space(page, size)) {
+    if (!has_space(page, size)) {
         return PAGE_HAS_NO_SPACE;
     }
 
     memcpy(get_offset(page, page->n_tuples, size), record, size);
 
     return page->n_tuples++;
-}
-
-static int
-page_find_record(Page page, void* record, size_t size)
-{    
-    for (int record_id = 0; record_id < page->n_tuples; record_id++) {
-        if (memcmp(get_offset(page, record_id, size), record, size) == 0) {
-            return record_id;
-        }
-    }
-    
-    return PAGE_RECORD_NOT_FOUND;
 }
 
 int
@@ -96,7 +71,7 @@ page_delete_record(Page page, void* record, size_t size)
         return PAGE_ARG_INVALID;
     }
 
-    int record_id = page_find_record(page, record, size);
+    int record_id = find_record(page, record, size);
     if (record_id == PAGE_RECORD_NOT_FOUND) {
         return PAGE_RECORD_NOT_FOUND;
     }
@@ -120,7 +95,7 @@ page_update_record(Page page, void* old, void* new, size_t size)
         return PAGE_ARG_INVALID;
     }
 
-    int record_id = page_find_record(page, old, size);
+    int record_id = find_record(page, old, size);
     if (record_id == PAGE_RECORD_NOT_FOUND) {
         return PAGE_RECORD_NOT_FOUND;
     }
@@ -145,4 +120,39 @@ page_read_record(Page page, int record_id, size_t size)
     memcpy(record, get_offset(page, record_id, size), size);
 
     return record;
+}
+
+
+/*
+ * PRIVATE FUNCTIONS
+ */
+
+static int
+header_size()
+{
+    return sizeof(struct page);
+}
+
+static int
+has_space(Page page, size_t size)
+{
+    return header_size() + page->n_tuples * size + size < page->size;
+}
+
+static void*
+get_offset(Page page, int record_id, size_t size)
+{
+    return page->data + record_id * size;
+}
+
+static int
+find_record(Page page, void* record, size_t size)
+{    
+    for (int record_id = 0; record_id < page->n_tuples; record_id++) {
+        if (memcmp(get_offset(page, record_id, size), record, size) == 0) {
+            return record_id;
+        }
+    }
+    
+    return PAGE_RECORD_NOT_FOUND;
 }
