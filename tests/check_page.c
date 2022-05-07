@@ -347,6 +347,12 @@ START_TEST (should_be_able_to_read_record_that_exists)
 }
 END_TEST
 
+START_TEST (should_not_be_able_to_read_from_null_page)
+{
+    ck_assert(page_read_record(NULL, 0, 128) == NULL);
+}
+END_TEST
+
 Suite* page_suite(void)
 {
     Suite* s = suite_create("Page");
@@ -387,6 +393,7 @@ Suite* page_suite(void)
     TCase* tc_read = tcase_create("Read");
     tcase_add_test(tc_read, should_not_be_able_to_read_record_that_doesnt_exist);
     tcase_add_test(tc_read, should_be_able_to_read_record_that_exists);
+    tcase_add_test(tc_read, should_not_be_able_to_read_from_null_page);
     suite_add_tcase(s, tc_read);
     
     return s;
