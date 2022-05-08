@@ -9,10 +9,12 @@ struct table
     
 };
 
+static int is_valid_name(char* name);
+
 Table
 table_create(char* name)
 {
-    if (name == NULL || !(0 < strlen(name) && strlen(name) < NAME_MAX)) {
+    if (!is_valid_name(name)) {
         return NULL;
     }
 
@@ -40,3 +42,14 @@ table_free(Table table)
 /*
  * PRIVATE FUNCTIONS
  */
+
+static int
+is_valid_name(char* name)
+{
+    if (name == NULL) {
+        return 0;
+    }
+
+    size_t len = strlen(name);
+    return 0 < len && len < NAME_MAX;
+}
