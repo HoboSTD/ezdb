@@ -12,12 +12,24 @@ START_TEST (should_create_table)
 }
 END_TEST
 
+/* This is a duplicate, just here in case it is expanded on. */
+START_TEST (should_be_able_to_free_table)
+{
+    Table table = table_create("test");
+    
+    ck_assert(table != NULL);
+    
+    table_free(table);
+}
+END_TEST
+
 Suite* page_suite(void)
 {
     Suite* s = suite_create("Table");
     
     TCase* tc_core = tcase_create("Core");
     tcase_add_test(tc_core, should_create_table);
+    tcase_add_test(tc_core, should_be_able_to_free_table);
     suite_add_tcase(s, tc_core);
     
     return s;

@@ -2,11 +2,9 @@
 #include <string.h>
 #include "table.h"
 
-#define MAX_TABLE_NAME (20)
-
 struct table
 {
-    char name[MAX_TABLE_NAME];
+    char* name;
     
 };
 
@@ -18,9 +16,11 @@ table_create(char* name)
         return NULL;
     }
     
-    /* Copy the name but leave space for the NULL terminator. */
-    memset(table->name, 0, MAX_TABLE_NAME);
-    strncpy(table->name, name, MAX_TABLE_NAME - 1);
+    table->name = strdup(name);
+    if (table->name == NULL) {
+        table_free(table);
+        return NULL;
+    }
 
     return table;
 }
@@ -28,7 +28,8 @@ table_create(char* name)
 void
 table_free(Table table)
 {
-    return;
+    free(table->name);
+    free(table);
 }
 
 /*
