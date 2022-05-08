@@ -28,6 +28,18 @@ START_TEST (should_not_be_able_to_create_table_with_empty_name)
 }
 END_TEST
 
+START_TEST (should_not_be_able_to_create_table_with_name_larger_than_possible)
+{
+    char long_name[300];
+    memset(long_name, 'a', 299);
+    long_name[299] = '\0';
+    
+    Table table = table_create(long_name);
+    
+    ck_assert(table == NULL);
+}
+END_TEST
+
 /* This is a duplicate, just here in case it is expanded on. */
 START_TEST (should_be_able_to_free_table)
 {
@@ -47,6 +59,7 @@ Suite* page_suite(void)
     tcase_add_test(tc_core, should_create_table);
     tcase_add_test(tc_core, should_not_be_able_to_create_table_with_null_name);
     tcase_add_test(tc_core, should_not_be_able_to_create_table_with_empty_name);
+    tcase_add_test(tc_core, should_not_be_able_to_create_table_with_name_larger_than_possible);
     tcase_add_test(tc_core, should_be_able_to_free_table);
     suite_add_tcase(s, tc_core);
     

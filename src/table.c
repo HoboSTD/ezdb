@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include "table.h"
 
 struct table
@@ -11,7 +12,7 @@ struct table
 Table
 table_create(char* name)
 {
-    if (name == NULL || strlen(name) == 0) {
+    if (name == NULL || !(0 < strlen(name) && strlen(name) < NAME_MAX)) {
         return NULL;
     }
 
