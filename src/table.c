@@ -11,6 +11,10 @@ struct table
 Table
 table_create(char* name)
 {
+    if (name == NULL) {
+        return NULL;
+    }
+
     Table table = malloc(sizeof(*table));
     if (table == NULL) {
         return NULL;
