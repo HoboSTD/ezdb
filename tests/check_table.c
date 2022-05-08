@@ -51,6 +51,14 @@ START_TEST (should_be_able_to_free_table)
 }
 END_TEST
 
+START_TEST (should_not_fail_when_freeing_null)
+{
+    table_free(NULL);
+    
+    ck_assert(1);
+}
+END_TEST
+
 Suite* page_suite(void)
 {
     Suite* s = suite_create("Table");
@@ -61,6 +69,7 @@ Suite* page_suite(void)
     tcase_add_test(tc_core, should_not_be_able_to_create_table_with_empty_name);
     tcase_add_test(tc_core, should_not_be_able_to_create_table_with_name_larger_than_possible);
     tcase_add_test(tc_core, should_be_able_to_free_table);
+    tcase_add_test(tc_core, should_not_fail_when_freeing_null);
     suite_add_tcase(s, tc_core);
     
     return s;

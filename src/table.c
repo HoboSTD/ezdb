@@ -35,6 +35,10 @@ table_create(char* name)
 void
 table_free(Table table)
 {
+    if (table == NULL) {
+        return;
+    }
+
     free(table->name);
     free(table);
 }
