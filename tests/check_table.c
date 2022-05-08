@@ -20,6 +20,14 @@ START_TEST (should_not_be_able_to_create_table_with_null_name)
 }
 END_TEST
 
+START_TEST (should_not_be_able_to_create_table_with_empty_name)
+{
+    Table table = table_create("\0");
+    
+    ck_assert(table == NULL);
+}
+END_TEST
+
 /* This is a duplicate, just here in case it is expanded on. */
 START_TEST (should_be_able_to_free_table)
 {
@@ -38,6 +46,7 @@ Suite* page_suite(void)
     TCase* tc_core = tcase_create("Core");
     tcase_add_test(tc_core, should_create_table);
     tcase_add_test(tc_core, should_not_be_able_to_create_table_with_null_name);
+    tcase_add_test(tc_core, should_not_be_able_to_create_table_with_empty_name);
     tcase_add_test(tc_core, should_be_able_to_free_table);
     suite_add_tcase(s, tc_core);
     

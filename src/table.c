@@ -11,7 +11,7 @@ struct table
 Table
 table_create(char* name)
 {
-    if (name == NULL) {
+    if (name == NULL || strlen(name) == 0) {
         return NULL;
     }
 
