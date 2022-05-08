@@ -26,5 +26,14 @@ record = executable(
     link_with : ezdblib
 )
 
+table = executable(
+    'check_table',
+    'check_table.c',
+    include_directories : incdir,
+    dependencies : deps,
+    link_with : ezdblib
+)
+
 test('check-page', page, suite: 'page')
 test('check-record', record, suite: 'record')
+test('check-table', table, suite: 'table')
